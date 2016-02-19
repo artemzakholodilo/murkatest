@@ -18,9 +18,9 @@ class Notification
         return $this->subject;
     }
 
-    public function setBody($body)
+    public function setBody($body, $from)
     {
-        $this->body = $body;
+        $this->body = $body . "\n" . "Best regards, $from";
     }
 
     public function setSubject($subject)

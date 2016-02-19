@@ -20,15 +20,11 @@ class MailerExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $container = new ContainerBuilder();
+        $container->register('emailsender', 'MailerBundle\Sender\EmailSender')
+            ->addArgument(new Reference('swiftmailer.mailer'))
+            ->addArgument(new Reference('swiftmailer.transport'));
 
-        $container->setParameter('emailsender', ' MailerBundle\Sender\EmailSender');
-        $container
-            ->register('swiftmailer.mailer', 'swiftmailer.mailer.default')
-            ->addArgument('%swiftmailer.mailer%');
-
-        $container
-            ->register('swiftmailer.transport', 'swiftmailer.mailer.default.transport')
-            ->addArgument('%swiftmailer.transport%');
+        $container->register('emailnotifier', 'MailerBundle\Controller\EmailController')
+                  ->addArgument(new Reference('emailsender'));
     }
 }

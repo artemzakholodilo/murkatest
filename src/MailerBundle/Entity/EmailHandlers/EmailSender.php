@@ -2,6 +2,7 @@
 
 namespace MailerBundle\Entity\EmailHandler;
 
+use MailerBundle\Entity\Notification;
 use PhpAmqpLib\Connection\AMQPConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
@@ -10,6 +11,17 @@ class EmailSender
     private $response;
 
     private $corrId;
+
+    private $sender;
+
+    /**
+     * EmailSender constructor.
+     * @param EmailSender $sender
+     */
+    public function __construct(EmailSender $sender)
+    {
+        $this->sender = $sender;
+    }
 
     public function execute($credentials)
     {
@@ -80,5 +92,14 @@ class EmailSender
         if($rep->get('correlation_id') == $this->corrId) {
             $this->response = $rep->body;
         }
+    }
+
+    private function getNotification()
+    {
+        $notification = new Notification();
+        $notification->setBody('bla bla');
+        $notification->setSubject('Test mail');
+
+        return $notification;
     }
 }

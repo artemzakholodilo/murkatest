@@ -3,31 +3,48 @@
 namespace MailerBundle\Controller;
 
 use MailerBundle\Entity\Notification;
+use MailerBundle\Sender\EmailSender;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\Request;
 
 class EmailController extends Controller
 {
+    /**
+     * @var EmailSender
+     */
+    private $sender;
+
+    /**
+     * EmailController constructor.
+     * @param EmailSender $sender
+     */
+    public function __construct(EmailSender $sender)
+    {
+        $this->sender = $sender;
+    }
+
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function indexAction()
     {
         return $this->render('MailerBundle:Email:index.html.twig');
     }
+
     /**
-     * @Route("/")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function sendAction()
+    public function sendAction(Request $request)
     {
         $notification = new Notification();
-        $notification->setBody('bla bla');
-        $notification->setSubject('Test mail');
-
-        $sender = $this->get('emailsender');
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $notification->setBody($request->request->get('subject'), $user->getUsername());
+        $notification->setSubject($request->request->get('body'));
 
         try {
-            for ($i = 0; $i < 9000; $i++) {
-                $sender->send($notification);
-            }
-        } catch (Exception $ex) {
+            $this->sender->send($notification);
+        } catch (\Exception $ex) {
             $this->render('MailerBundle:Email:error.html.twig', [
                 'message' => $ex->getMessage()
             ]);

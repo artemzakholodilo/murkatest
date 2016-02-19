@@ -1,8 +1,3 @@
 mailer:
-    resource: "@MailerBundle/Controller/"
-    type:     annotation
-    prefix:   /
+    resource: '@MailerBundle/Resources/config/routing.yml'
 
-app:
-    resource: "@AppBundle/Controller/"
-    type:     annotation

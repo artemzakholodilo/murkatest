@@ -1,0 +1,15 @@
+site:
+    path: /
+    defaults: { _controller: MailerBundle:Site:index }
+
+email:
+    path: /email
+    defaults: { _controller: MailerBundle:Email:index }
+
+send_email:
+    path: /email/send
+    defaults: { _controller: MailerBundle:Email:send }
+
+login:
+    path: /login
+    defaults: { _controller: MailerBundle:Site:login }
