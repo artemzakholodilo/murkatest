@@ -1,14 +1,28 @@
-#security:
-#
-#    firewalls:
-#        # order matters! This must be before the ^/ firewall
-#        login_firewall:
-#            pattern:   ^/login$
-#            anonymous: ~
-#        secured_area:
-#            pattern:    ^/
-#            form_login: ~
-#
-#    access_control:
-#        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/, roles: ROLE_ADMIN }
+security:
+     role_hierarchy:
+         ROLE_ADMIN:       ROLE_USER
+         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN]
+
+     providers:
+         main:
+             entity: { class: MailerBundle\Entity\User }
+
+     firewalls:
+         dev:
+             pattern:  ^/(_(profiler|wdt)|css|images|js)/
+             security: false
+
+         default:
+             pattern: ^/
+             anonymous: ~
+             form_login:
+                 check_path: login
+                 login_path: login
+             logout:
+                 path:   logout
+                 target: site
+
+     access_control:
+         - { path: ^/$,      roles: IS_AUTHENTICATED_ANONYMOUSLY }
+         - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+         - { path: ^/email$, roles: ROLE_USER }

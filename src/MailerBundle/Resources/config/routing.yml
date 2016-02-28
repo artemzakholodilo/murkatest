@@ -4,12 +4,16 @@ site:
 
 email:
     path: /email
-    defaults: { _controller: mailer.emailnotifier:indexAction }
+    defaults: { _controller: emailnotifier:indexAction }
 
 send_email:
     path: /email/send
-    defaults: { _controller: mailer.emailnotifier:sendAction }
+    defaults: { _controller: emailnotifier:sendAction }
 
 login:
     path: /login
     defaults: { _controller: MailerBundle:Site:login }
+
+signup:
+    path: /signup
+    defaults: { _controller: MailerBundle:Site:signup }
