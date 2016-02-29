@@ -16,14 +16,30 @@ class SiteController extends Controller
         return $this->render('MailerBundle:Site:index.html.twig');
     }
 
-    public function loginAction(Request $request)
+    /**
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function loginAction()
     {
-        if ($userEmail = $request->request->get('email')) {
-            $this->login($userEmail);
-        }
-        return $this->render('MailerBundle:Site:login.html.twig');
+        $authenticationUtils = $this->get('security.authentication_utils');
+
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render(
+            'MailerBundle:Site:login.html.twig',
+            [
+                'last_username' => $lastUsername,
+                'error'         => $error,
+            ]
+        );
     }
 
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function signupAction(Request $request)
     {
         if ($userEMail = $request->request->get('email')) {
@@ -42,12 +58,5 @@ class SiteController extends Controller
         }
 
         return $this->render('MailerBundle:Site:signup.html.twig');
-    }
-
-    private function login($email)
-    {
-
-        return true;
-
     }
 }

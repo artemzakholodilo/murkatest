@@ -2,8 +2,6 @@
 
 namespace MailerBundle\Sender;
 
-use MailerBundle\Entity\Notification;
-
 abstract class AbstractSender
 {
     protected $transport;
@@ -13,5 +11,5 @@ abstract class AbstractSender
         return new $sender;
     }
 
-    abstract public function send(Notification $notification);
+    abstract public function send($notification);
 }

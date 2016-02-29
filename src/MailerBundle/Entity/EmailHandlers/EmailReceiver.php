@@ -2,90 +2,50 @@
 
 namespace MailerBundle\Entity\EmailHandler;
 
+use MailerBundle\Sender\EmailSender;
 use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Message\AMQPMessage;
 
-class EmailReceiver
+class EmailReceiver extends AMQPHandler
 {
-    public function listen()
-    {
-        $connection = new AMQPConnection('localhost', 5672, 'guest', 'guest');
-        $channel = $connection->channel();
-
-        $channel->queue_declare(
-            'rpc_queue',    #queue
-            false,          #passive
-            false,          #durable
-            false,          #exclusive
-            false           #autodelete
-        );
-
-        $channel->basic_qos(
-            null,   #prefetch size
-            1,      #prefetch count
-            null    #global
-        );
-
-        $channel->basic_consume(
-            'rpc_queue',                #queue
-            '',                         #consumer tag
-            false,                      #no local
-            false,                      #no ack
-            false,                      #exclusive
-            false,                      #no wait
-            array($this, 'callback')    #callback
-        );
-
-        while(count($channel->callbacks)) {
-            $channel->wait();
-        }
-
-        $channel->close();
-        $connection->close();
-    }
+    /**
+     * @var AMQPConnection
+     */
+    private $connection;
 
     /**
-     * Executes when a message is received.
-     *
-     * @param AMQPMessage $req
+     * @var EmailSender
      */
-    public function callback(AMQPMessage $req)
-    {
-
-        /*
-         * Creating a reply message with the same correlation id than the incoming message
-         */
-        $msg = new AMQPMessage(
-            array('correlation_id' => $req->get('correlation_id'))  #options
-        );
-
-        /*
-         * Publishing to the same channel from the incoming message
-         */
-        $req->delivery_info['channel']->basic_publish(
-            $msg,                   #message
-            '',                     #exchange
-            $req->get('reply_to')   #routing key
-        );
-
-        /*
-         * Acknowledging the message
-         */
-        $req->delivery_info['channel']->basic_ack(
-            $req->delivery_info['delivery_tag'] #delivery tag
-        );
-    }
+    private $sender;
 
     /**
-     * @param \stdClass $credentials
-     * @return bool
+     * EmailReceiver constructor.
+     * @param EmailSender $sender
      */
-    private function auth(\stdClass $credentials)
+    public function __construct(EmailSender $sender)
     {
-        if (($credentials->username == 'admin') && ($credentials->password == 'admin')) {
-            return true;
-        } else {
-            return false;
+        $this->connection = $this->getConnection();
+        $this->sender = $sender;
+    }
+
+    public function receive($message)
+    {
+        $callback = function() use ($message)
+        {
+            $data = json_decode($message->body, true);
+            $this->sender->send($data);
+
+            $message->delivery_info('channel')
+                    ->basic_ack($message->delivery_info('delivery_tag'));
+
+        };
+
+        $this->connection->basic_qos(null, 1, null);
+        $this->connection->basic_consume('email_queue', '', false, false, false, false, $callback);
+
+        while(count($this->connection->callbacks)) {
+            $this->connection->wait();
         }
+
+        return $message;
     }
 }

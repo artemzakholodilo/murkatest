@@ -2,23 +2,25 @@
 
 namespace MailerBundle\Controller;
 
+use MailerBundle\Entity\EmailHandler\EmailReceiver;
+use MailerBundle\Entity\EmailHandler\EmailSender;
+use MailerBundle\Sender\EmailSender as Sender;
 use MailerBundle\Entity\Notification;
-use MailerBundle\Sender\EmailSender;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 class EmailController extends Controller
 {
     /**
-     * @var EmailSender
+     * @var Sender
      */
     private $sender;
 
     /**
      * EmailController constructor.
-     * @param EmailSender $sender
+     * @param Sender $sender
      */
-    public function __construct(EmailSender $sender)
+    public function __construct(Sender $sender)
     {
         $this->sender = $sender;
     }
@@ -41,6 +43,12 @@ class EmailController extends Controller
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $notification->setBody($request->request->get('subject'), $user->getUsername());
         $notification->setSubject($request->request->get('body'));
+
+        $amqpSender = new EmailSender();
+        $message = $amqpSender->send($notification->toJson());
+
+        $receiver = new EmailReceiver($this->sender);
+        $receiver->receive($message);
 
         try {
             $this->sender->send($notification);

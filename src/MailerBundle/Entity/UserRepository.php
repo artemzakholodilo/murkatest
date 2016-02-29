@@ -2,13 +2,13 @@
 
 namespace MailerBundle\Entity;
 
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class UserRepository extends EntityRepository implements UserProviderInterface
+class UserRepository extends EntityRepository implements UserLoaderInterface
 {
 
     /**
@@ -25,13 +25,11 @@ class UserRepository extends EntityRepository implements UserProviderInterface
      */
     public function loadUserByUsername($username)
     {
-        $this->getEntityManager()
-             ->createQuery('
-                 SELECT u FROM MailerBundle:Entity:User u
-                 WHERE u.name = :username
-             ')->setParameter([
-                'username' => $username
-            ])->getOneOrNullResult();
+        $this->createQueryBuilder('u')
+             ->where('u.name = :username')
+             ->setParameter('username', $username)
+             ->getQuery()
+             ->getOneOrNullResult();
     }
 
     /**

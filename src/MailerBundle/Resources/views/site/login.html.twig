@@ -8,6 +8,13 @@
                     <h5>Login to your account</h5>
                 </div>
             </div>
+            {% if error %}
+            <div class="row margin">
+                <div class="col s9 offset-s3">
+                    {{ error.messageKey }}
+                </div>
+            </div>
+            {% endif %}
             <form class="login-form" method="POST" action="{{ path('login') }}">
                 <div class="row margin">
                     <div class="input-field col s6 offset-s3">

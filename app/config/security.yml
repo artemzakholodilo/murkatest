@@ -1,28 +1,35 @@
 security:
-     role_hierarchy:
-         ROLE_ADMIN:       ROLE_USER
-         ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN]
+    encoders:
+        MailerBundle\Entity\User:
+            algorithm: bcrypt
 
-     providers:
-         main:
-             entity: { class: MailerBundle\Entity\User }
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_USER, ROLE_ADMIN]
 
-     firewalls:
-         dev:
-             pattern:  ^/(_(profiler|wdt)|css|images|js)/
-             security: false
+    providers:
+        main:
+            entity:
+                class: MailerBundle\Entity\User
 
-         default:
-             pattern: ^/
-             anonymous: ~
-             form_login:
-                 check_path: login
-                 login_path: login
-             logout:
-                 path:   logout
-                 target: site
+    firewalls:
+        dev:
+            pattern:  ^/(_(profiler|wdt)|css|images|js)/
+            security: false
 
-     access_control:
-         - { path: ^/$,      roles: IS_AUTHENTICATED_ANONYMOUSLY }
-         - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-         - { path: ^/email$, roles: ROLE_USER }
+        main:
+            pattern: ^/
+            anonymous: ~
+            form_login:
+                check_path: login
+                login_path: login
+            logout:
+                path:   logout
+                target: site
+            provider: main
+
+
+    access_control:
+        - { path: ^/$,      roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#         - { path: ^/email$, roles: ROLE_USER }

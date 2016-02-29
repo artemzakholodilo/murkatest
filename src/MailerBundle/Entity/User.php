@@ -114,7 +114,7 @@ class User implements UserInterface, \Serializable
      */
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
     /**
@@ -135,7 +135,6 @@ class User implements UserInterface, \Serializable
      */
     public function eraseCredentials()
     {
-        return null;
     }
 
     /**
