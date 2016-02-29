@@ -12,24 +12,17 @@ class UserRepository extends EntityRepository implements UserLoaderInterface
 {
 
     /**
-     * Loads the user for the given username.
-     *
-     * This method must throw UsernameNotFoundException if the user is not
-     * found.
-     *
-     * @param string $username The username
-     *
-     * @return UserInterface
-     *
-     * @throws UsernameNotFoundException if the user is not found
+     * @param string $email
+     * @return mixed
+     * @throws \Doctrine\ORM\NonUniqueResultException
      */
-    public function loadUserByUsername($username)
+    public function loadUserByUsername($email)
     {
-        $this->createQueryBuilder('u')
-             ->where('u.name = :username')
-             ->setParameter('username', $username)
-             ->getQuery()
-             ->getOneOrNullResult();
+        return $this->createQueryBuilder('u')
+                    ->where('u.name = :email')
+                    ->setParameter('username', $email)
+                    ->getQuery()
+                    ->getOneOrNullResult();
     }
 
     /**

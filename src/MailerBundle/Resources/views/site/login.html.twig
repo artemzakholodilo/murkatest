@@ -15,12 +15,12 @@
                 </div>
             </div>
             {% endif %}
-            <form class="login-form" method="POST" action="{{ path('login') }}">
+            <form class="login-form" method="post" action="{{ path('login') }}">
                 <div class="row margin">
                     <div class="input-field col s6 offset-s3">
                         <i class="mdi-social-person-outline prefix"></i>
-                        <input id="email" type="text" name="email" tabindex="1" />
-                        <label for="username" class="center-align">Email</label>
+                        <input id="name" type="text" name="_username" tabindex="1" value="{{ last_username }}" />
+                        <label for="name" class="center-align">Email</label>
                     </div>
                 </div>
                 <div class="row margin">
